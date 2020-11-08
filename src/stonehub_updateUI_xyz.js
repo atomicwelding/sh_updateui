@@ -8,6 +8,7 @@
 // @run-at       document-start
 // @grant        GM_xmlhttpRequest
 // ==/UserScript==
+// Test
 
 class Stonehub_updateUI_xyz {
 
