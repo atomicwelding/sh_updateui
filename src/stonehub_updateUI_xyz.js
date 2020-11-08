@@ -115,8 +115,7 @@ Stonehub_updateUI_xyz.prototype.xyz_update_inventory_HTML = function(that) {
             }
             // Populate the div with xyz API current price
             let value = that.xyz_inventory_items[i][1];
-            let value_text = Math.abs(value) > 999 ? Math.sign(value)*((Math.abs(value)/1000).toFixed(1))+' k' : Math.sign(value)*Math.abs(value);
-            item_node.getElementsByClassName("price").item(0).textContent = value ? value_text : 'no data...';
+            item_node.getElementsByClassName("price").item(0).textContent = value ? value.toLocaleString() : 'no data...';
         }
     }
 }
@@ -146,8 +145,7 @@ Stonehub_updateUI_xyz.prototype.xyz_update_market_HTML = function(that) {
             }
             // Populate the div with xyz API current price
             let value = that.xyz_market_items[i][1];
-            let value_text = Math.abs(value) > 999 ? Math.sign(value)*((Math.abs(value)/1000).toFixed(1))+' k' : Math.sign(value)*Math.abs(value);
-            item_node.getElementsByClassName("price").item(0).textContent = value ? value_text : 'no data...';
+            item_node.getElementsByClassName("price").item(0).textContent = value ? value.toLocaleString() : 'no data...';
         }
     }
 }
