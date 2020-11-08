@@ -38,7 +38,7 @@ Stonehub_updateUI_xyz.prototype.refresh_xyz = function(that) {
     that.data_xyz = "";
     var item_list = document.getElementsByClassName("inventory-container-all-items")[0].childNodes[0];
     for (var i = 0; i < item_list.childElementCount; i++) {
-        let next_element_sibling = item_list.childNodes[11+i].nextElementSibling;
+        let next_element_sibling = item_list.childNodes[10+i].nextElementSibling;
         if(next_element_sibling){
             let node_value = next_element_sibling.attributes['data-for'].nodeValue;
             that.items_xyz.push([node_value.substring(7,node_value.indexOf("stockpile")),]);
@@ -47,9 +47,9 @@ Stonehub_updateUI_xyz.prototype.refresh_xyz = function(that) {
 
     that.get_xyz_prices(that);
     for (i = 0; i < item_list.childElementCount; i++) {
-        let next_element_sibling =  item_list.childNodes[11+i].nextElementSibling;
+        let next_element_sibling =  item_list.childNodes[10+i].nextElementSibling;
         if(next_element_sibling){
-            next_element_sibling.childNodes[3].textContent = that.items_xyz[i][1] ? that.items_xyz[i][1].toString() : '';
+            next_element_sibling.childNodes[3].textContent = that.items_xyz[i][1] ? that.items_xyz[i][1].toString() : 'loading...';
             next_element_sibling.childNodes[3].style.color = "#54FF9F";
             next_element_sibling.childNodes[3].style.fontSize = "9px";
         }
