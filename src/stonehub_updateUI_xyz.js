@@ -261,7 +261,7 @@ Stonehub_updateUI_xyz.prototype.go_run = function(that) {
             }
             // Only for testing purpose
 //             geode = "You cracked open 4 geodes and found Copper Ore x 27, Iron Ore x 39, Gold Ore x 139, Mithril Ore x 22, Runite Ore x 21, Clay x 19, Stone x 43, Sand x 16, Silver x 75, Coal x 82, Sapphire x 2, Diamond x 1, as loot."
-            geode = geode.substring(geode.indexOf("found ")+6,geode.indexOf(((nb_geode>1) ? "," : "") + " as loot."));
+            geode = geode.substring(geode.indexOf("found ")+6,geode.indexOf(((that.go_nb_geode>1) ? "," : "") + " as loot."));
             geode = geode.split(", ");
             for(var j = 0; j < geode.length; j++){
                 geode[j] = geode[j].split(" x ");
