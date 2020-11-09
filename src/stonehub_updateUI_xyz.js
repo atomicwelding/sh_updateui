@@ -26,7 +26,7 @@ class Stonehub_updateUI_xyz {
     error_handler(that, e) {
         let alert_msg = "Something goes wrong with Stonehub_updateUI_xyz ! \nError msg: " + e.message + "\nPlease reload the page or contact messenoire / Gamergeo / Godi";
         console.log(alert_msg);
-        alert(alert_msg);
+        //alert(alert_msg);
     }
 
     start() {
