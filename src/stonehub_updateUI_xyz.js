@@ -261,22 +261,21 @@ Stonehub_updateUI_xyz.prototype.go_run = function(that) {
             }
             // Only for testing purpose
 //             geode = "You cracked open 4 geodes and found Copper Ore x 27, Iron Ore x 39, Gold Ore x 139, Mithril Ore x 22, Runite Ore x 21, Clay x 19, Stone x 43, Sand x 16, Silver x 75, Coal x 82, Sapphire x 2, Diamond x 1, as loot."
-            geode = geode.substring(geode.indexOf("found ")+6,geode.indexOf(" as loot."));
+            geode = geode.substring(geode.indexOf("found ")+6,geode.indexOf(((nb_geode>1) ? "," : "") + " as loot."));
             geode = geode.split(", ");
             for(var j = 0; j < geode.length; j++){
                 geode[j] = geode[j].split(" x ");
             }
             clearInterval(Activity_Geode_hook);
-            that.go_main_game(that, geode, that.go_nb_geode);
+            that.go_main_game(that, geode);
         } catch(e) {console.log(e.message); return; }
     }, 40);
 }
 
-Stonehub_updateUI_xyz.prototype.go_main_game = function(that, geode, nb_geode) {
+Stonehub_updateUI_xyz.prototype.go_main_game = function(that, geode) {
 
     var x = document.getElementById("root");
     x.style.display = "none";
-
     var audio = new Audio('https://raw.githubusercontent.com/geode-booster/geode-booster.github.io/master/eussou.mp3');
     audio.volume = 0.05;
     audio.play();
@@ -402,12 +401,12 @@ Stonehub_updateUI_xyz.prototype.go_main_game = function(that, geode, nb_geode) {
     shuffle(probability);
     var total_part = probability.length;
 
-    for(let i = 0; i < nb_geode; i++) {
+    for(let i = 0; i < that.go_nb_geode; i++) {
         that.go_gl.push({
             x : canvas.width/2, y : canvas.height/2,
             xr : rand(canvas.width), yr : rand(canvas.height),
             r : rand(0,1), // mélangeons les goudjas
-            scale : rand(0.8,1.2), // chanclons la bougnadère
+            scale : rand(0.9,1.2), // chanclons la bougnadère
             dx : rand(-3,3), dy : rand(-3,3),
             dr : rand(-0.4,0.4),
         })
@@ -418,7 +417,7 @@ Stonehub_updateUI_xyz.prototype.go_main_game = function(that, geode, nb_geode) {
         while(pas >= 0) {
             var spr = that.go_gl[pas];
             if(event.offsetX > spr.xr-(that.go_geode.width/2*spr.scale) && event.offsetX < spr.xr+(that.go_geode.width/2*spr.scale) && event.offsetY > spr.yr-(that.go_geode.height/2*spr.scale) && event.offsetY < spr.yr+(that.go_geode.height/2*spr.scale)){
-                let nb_part = (that.go_gl.length > 1) ? Math.ceil(total_part / nb_geode) : probability.length;
+                let nb_part = (that.go_gl.length > 1) ? Math.ceil(total_part / that.go_nb_geode) : probability.length;
                 for(let i = 0; i < nb_part; i++) {
                     that.go_pl.push({
                         name: geode[probability[i]][0],
@@ -426,10 +425,10 @@ Stonehub_updateUI_xyz.prototype.go_main_game = function(that, geode, nb_geode) {
                         x : event.offsetX+(imgs[geode[probability[i]][0]].width/2*spr.scale), y : event.offsetY+(imgs[geode[probability[i]][0]].height/2*spr.scale),
                         xr : 0, yr : 0,
                         r : rand(0,1), // mélangeons les goudjas
-                        scale : rand(0.3,0.5), // chanclons la bougnadère
+                        scale : rand(0.2,0.5), // chanclons la bougnadère
                         dx : rand(-2,2), dy : rand(-2,2),
                         dr : rand(-0.2,0.2),
-                        tick : Math.floor(rand(1000, 1500))
+                        tick : Math.floor(rand(900, 1400))
                     })
                 }
                 probability = probability.splice(nb_part);
