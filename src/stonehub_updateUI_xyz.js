@@ -21,7 +21,7 @@ class Stonehub_updateUI_xyz {
     }
 
     error_handler(that, e) {
-        let alert_msg = "Something goes wrong with Stonehub_updateUI_xyz ! \nError msg: " + e.message + "\nPlease reload the page or contact messenoire / Gamergeo";
+        let alert_msg = "Something goes wrong with Stonehub_updateUI_xyz ! \nError msg: " + e.message + "\nPlease reload the page or contact messenoire / Gamergeo / Godi";
         console.log(alert_msg);
         //alert(alert_msg);
     }
@@ -34,6 +34,11 @@ class Stonehub_updateUI_xyz {
             } catch(e) {that.error_handler(that, e);}
         }, that.xyz_refresh_rate);
     }
+}
+
+Stonehub_updateUI_xyz.prototype.int_to_commas = function(x) {
+    // src https://stackoverflow.com/questions/2901102/how-to-print-a-number-with-commas-as-thousands-separators-in-javascript
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 
@@ -115,7 +120,7 @@ Stonehub_updateUI_xyz.prototype.xyz_update_inventory_HTML = function(that) {
             }
             // Populate the div with xyz API current price
             let value = that.xyz_inventory_items[i][1];
-            item_node.getElementsByClassName("price").item(0).textContent = value ? value.toLocaleString() : 'no data...';
+            item_node.getElementsByClassName("price").item(0).textContent = value ? that.int_to_commas(value) : 'no data...';
         }
     }
 }
@@ -145,7 +150,7 @@ Stonehub_updateUI_xyz.prototype.xyz_update_market_HTML = function(that) {
             }
             // Populate the div with xyz API current price
             let value = that.xyz_market_items[i][1];
-            item_node.getElementsByClassName("price").item(0).textContent = value ? value.toLocaleString() : 'no data...';
+            item_node.getElementsByClassName("price").item(0).textContent = value ? that.int_to_commas(value) : 'no data...';
         }
     }
 }
