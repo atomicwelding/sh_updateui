@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         stonehub_updateUI_xyz
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  retrieve prices from idlescape.xyz and inject it in idlescape inventory
 // @author       godi, weld, gamergeo, flo
 // @match        https://idlescape.com/game*
@@ -40,7 +40,7 @@ class Stonehub_updateUI_xyz {
         // launch geode_opener (go) daemon
         this.timer_hook = setInterval(() => {
             try {
-                that.go_hook(that);
+                that.go_geode_hook(that);
             } catch(e) {that.error_handler(that, e);}
         }, that.go_interval_retry);
     }
@@ -121,7 +121,7 @@ Stonehub_updateUI_xyz.prototype.xyz_update_inventory_HTML = function(that) {
                 newNode.style.top = "-4px";
                 newNode.style.left = "1px";
                 newNode.style.color = "#54FF9F";
-                newNode.style.fontSize = "9px";
+                newNode.style.fontSize = "11px";
                 var lastNode = item_node.lastElementNode;
                 item_node.insertBefore(newNode, lastNode);
                 var enchantNode = item_node.getElementsByClassName("item-enchant").item(0);
@@ -149,7 +149,7 @@ Stonehub_updateUI_xyz.prototype.xyz_update_market_HTML = function(that) {
                 newNode.style.top = "-4px";
                 newNode.style.left = "1px";
                 newNode.style.color = "#54FF9F";
-                newNode.style.fontSize = "9px";
+                newNode.style.fontSize = "11px";
                 var lastNode = item_node.lastElementNode;
                 item_node.insertBefore(newNode, lastNode);
                 if(that.xyz_active_market_tag == "marketplace-sell-items all-items"){
@@ -211,7 +211,7 @@ Stonehub_updateUI_xyz.prototype.xyz_show_gold_heat = function(that) {
 // **************************************************************************
 
 
-Stonehub_updateUI_xyz.prototype.go_hook = function(that) {
+Stonehub_updateUI_xyz.prototype.go_geode_hook = function(that) {
     try {
         var inventory_HTML = document.getElementsByClassName("inventory-container-all-items")[0].children[0];
     } catch(e) { return;}
@@ -220,10 +220,8 @@ Stonehub_updateUI_xyz.prototype.go_hook = function(that) {
         if (inventory_HTML.children[i].outerHTML.includes("Geode")) {geode_div = inventory_HTML.children[i]; break;}
     }
     if (geode_div) {
-        if(! geode_div.getElementsByClassName('geode_clicker')[0]){
-            var dummy_div = document.createElement('div');
-            dummy_div.className = "geode_clicker";
-            geode_div.appendChild(dummy_div);
+        if(! geode_div.attributes["fdp-event"]){
+            geode_div.attributes["fdp-event"] = true;
             geode_div.addEventListener("click", (e) => {that.go_geode_item_clicked(that,e);}, false);
         }
     }
@@ -261,7 +259,7 @@ Stonehub_updateUI_xyz.prototype.go_run = function(that) {
             }
             // Only for testing purpose
 //             geode = "You cracked open 4 geodes and found Copper Ore x 27, Iron Ore x 39, Gold Ore x 139, Mithril Ore x 22, Runite Ore x 21, Clay x 19, Stone x 43, Sand x 16, Silver x 75, Coal x 82, Sapphire x 2, Diamond x 1, as loot."
-            geode = geode.substring(geode.indexOf("found ")+6,geode.indexOf(((that.go_nb_geode>1) ? "," : "") + " as loot."));
+            geode = geode.substring(geode.indexOf("found ")+6,(that.go_nb_geode>1) ? geode.lastIndexOf(",") : geode.indexOf(" as loot."));
             geode = geode.split(", ");
             for(var j = 0; j < geode.length; j++){
                 geode[j] = geode[j].split(" x ");
