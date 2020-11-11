@@ -43,8 +43,16 @@ class Stonehub_updateUI_xyz {
 
     start() {
         let that = this;
-        that.set_status(that);
-        that.retrieve_status_div(that);
+        // wait for loading to complete, then check which ext is activated
+        let page_ready = setInterval(() =>{
+            if(document.readyState == 'complete'){
+                clearInterval(page_ready);
+                that.set_status(that);
+                that.retrieve_status_div(that)
+            }
+            ;
+        }, 200);
+        
         // launch xyz prices (xyz) daemon
         setInterval(() => {
             try {
@@ -321,9 +329,9 @@ Stonehub_updateUI_xyz.prototype.xyz_am_i_minprice = function(that) {
                     // const color = infos.price == d.price ? 'green' : 'red';
                     //console.log(infos.name + ':' + infos.price + ' ' + d.price + ' ' +color);
                     if(infos.price == d.price)
-                        tr.style.backgroundColor = 'blue';
+                        tr.style.backgroundColor = '#2d41f7';
                     else
-                        tr.style.backgroundColor = 'red';
+                        tr.style.backgroundColor = '#fa4b4b';
                }
             });
 
