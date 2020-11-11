@@ -330,9 +330,9 @@ Stonehub_updateUI_xyz.prototype.xyz_am_i_minprice = function(that) {
                     // const color = infos.price == d.price ? 'green' : 'red';
                     //console.log(infos.name + ':' + infos.price + ' ' + d.price + ' ' +color);
                     if(infos.price == d.price)
-                        tr.style.backgroundColor = 'blue';
+                        tr.style.backgroundColor = '#fa4b4b';
                     else
-                        tr.style.backgroundColor = 'red';
+                        tr.style.backgroundColor = '#eb4646';
                }
             });
 
