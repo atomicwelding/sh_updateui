@@ -12,6 +12,7 @@
 class Stonehub_updateUI_xyz {
 
     constructor() {
+        this.xyz_data;
         this.xyz_inventory_HTML = "";
         this.xyz_market_HTML = "";
         this.xyz_inventory_items = [];
@@ -58,6 +59,7 @@ Stonehub_updateUI_xyz.prototype.xyz_main = function(that) {
     that.xyz_get_market_HTML(that);
     if(that.xyz_inventory_items.length > 0 || that.xyz_market_items.length > 0) that.xyz_get_prices(that);
     that.xyz_show_gold_heat(that);
+    that.xyz_am_i_minprice(that);
 }
 
 Stonehub_updateUI_xyz.prototype.xyz_get_inventory_HTML = function(that) {
@@ -173,12 +175,12 @@ Stonehub_updateUI_xyz.prototype.xyz_get_prices = function(that) {
         url: "https://api.idlescape.xyz/prices",
         method: "GET",
         onload: response => {
-            var xyz_data = JSON.parse(response.responseText)['items'];
+            that.xyz_data = JSON.parse(response.responseText)['items'];
             // Get price for each item in inventory
             for (var i = 0; i < that.xyz_inventory_items.length; i++) {
-                for (var j = 0; j < xyz_data.length; j++) {
-                    if (xyz_data[j]['name'] == that.xyz_inventory_items[i][0]) {
-                        that.xyz_inventory_items[i][1]=xyz_data[j]['price'];
+                for (var j = 0; j < that.xyz_data.length; j++) {
+                    if (that.xyz_data[j]['name'] == that.xyz_inventory_items[i][0]) {
+                        that.xyz_inventory_items[i][1]=that.xyz_data[j]['price'];
                         break;
                     }
                 }
@@ -186,9 +188,9 @@ Stonehub_updateUI_xyz.prototype.xyz_get_prices = function(that) {
             if(that.xyz_inventory_items.length > 0) that.xyz_update_inventory_HTML(that);
             // Get price for each item in inventory
             for (i = 0; i < that.xyz_market_items.length; i++) {
-                for (j = 0; j < xyz_data.length; j++) {
-                    if (xyz_data[j]['name'] == that.xyz_market_items[i][0]) {
-                        that.xyz_market_items[i][1]=xyz_data[j]['price'];
+                for (j = 0; j < that.xyz_data.length; j++) {
+                    if (that.xyz_data[j]['name'] == that.xyz_market_items[i][0]) {
+                        that.xyz_market_items[i][1]=that.xyz_data[j]['price'];
                         break;
                     }
                 }
@@ -203,6 +205,32 @@ Stonehub_updateUI_xyz.prototype.xyz_show_gold_heat = function(that) {
     if (! document.getElementsByClassName("inventory-panel")[0]) {return;} // Inventory isn't being displayed => Leave
     document.getElementById('gold').textContent = document.getElementById('gold-tooltip').children[1].textContent
     document.getElementById('heat').textContent = document.getElementById('heat-tooltip').children[1].textContent
+}
+
+Stonehub_updateUI_xyz.prototype.xyz_am_i_minprice = function(that) {
+    const table = document.getElementsByClassName('crafting-table marketplace-table marketplace-my-auctions-table')[0];
+    if(table){
+        const items = table.getElementsByTagName('tbody')[0].children;
+        [...items].forEach(tr => {
+            const infos = {
+                'name':tr.childNodes[0].childNodes[0].childNodes[1].childNodes[0].innerHTML,
+                'price':(tr.childNodes[tr.childNodes.length - 1].innerHTML).replace(/\s+/g, '')
+            };
+
+            that.xyz_data.forEach(d => {
+                if(infos.name == d.name) {
+                    // const color = infos.price == d.price ? 'green' : 'red';
+                    //console.log(infos.name + ':' + infos.price + ' ' + d.price + ' ' +color);
+                    if(infos.price == d.price)
+                        tr.style.backgroundColor = 'green';
+                    else
+                        tr.style.backgroundColor = 'red';
+               }
+            });
+
+
+        });
+    }
 }
 
 
