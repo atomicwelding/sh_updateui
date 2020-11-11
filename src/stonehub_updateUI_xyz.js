@@ -12,15 +12,27 @@
 class Stonehub_updateUI_xyz {
 
     constructor() {
+        this.extension_id = 'updateui';
+        this.status_refresh_time = 3000;
+
+        this.xyz_data;
         this.xyz_inventory_HTML = "";
         this.xyz_market_HTML = "";
+        this.xyz_enchant_HTML = "";
         this.xyz_inventory_items = [];
         this.xyz_market_items = [];
+        this.xyz_enchant_items = [];
         this.xyz_active_market_tag = "";
-        this.xyz_refresh_rate = 2000;
+        this.xyz_refresh_rate = 500;
         this.timer_hook = 0;
         this.go_interval_retry = 2000;
         this.go_nb_geode = 0;
+
+        this.status_div;
+        this.activated_extensions = {
+            'stonehub':false,
+            'updateui':false
+        };
     }
 
     error_handler(that, e) {
@@ -31,6 +43,8 @@ class Stonehub_updateUI_xyz {
 
     start() {
         let that = this;
+        that.set_status(that);
+        that.retrieve_status_div(that);
         // launch xyz prices (xyz) daemon
         setInterval(() => {
             try {
@@ -46,6 +60,39 @@ class Stonehub_updateUI_xyz {
     }
 }
 
+Stonehub_updateUI_xyz.prototype.create_status_div = function(that) {
+    /**
+     * <div id='stonehub_status'></div>
+     */
+    const sdiv = document.createElement('div');
+    sdiv.id = 'stonehub_status';
+    sdiv.style.display = 'none';
+    document.body.appendChild(sdiv);
+    return document.getElementById('stonehub_status');
+}
+
+Stonehub_updateUI_xyz.prototype.set_status = function(that) {
+    if(!that.activated_extensions.stonehub){
+        that.status_div = that.status_div ?? that.create_status_div(that);
+        let ext_status = document.createElement('div');
+        ext_status.id = that.extension_id;
+        that.status_div.appendChild(ext_status);
+    }
+}
+
+Stonehub_updateUI_xyz.prototype.retrieve_status_div = function(that) {
+    /**
+     * Checks inside <div id='stonehub_status'></div> which script is activated
+     * and update its state inside this.activated_extensions
+     */
+    setInterval(() => {    
+        that.status_div = that.status_div ?? that.create_status_div(that);
+        [...that.status_div.children].forEach(ext =>{
+            that.activated_extensions[ext.id] = true;
+        });
+    }, that.status_refresh_time);
+}
+
 Stonehub_updateUI_xyz.prototype.int_to_commas = function(x) {
     // src https://stackoverflow.com/questions/2901102/how-to-print-a-number-with-commas-as-thousands-separators-in-javascript
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -56,9 +103,12 @@ Stonehub_updateUI_xyz.prototype.xyz_main = function(that) {
     // This function is called every "xyz_refresh_rate" seconds and refreshes price according to items displayed on screen
     that.xyz_get_inventory_HTML(that);
     that.xyz_get_market_HTML(that);
-    if(that.xyz_inventory_items.length > 0 || that.xyz_market_items.length > 0) that.xyz_get_prices(that);
+    that.xyz_get_enchant_HTML(that);
+    if(that.xyz_inventory_items.length > 0 || that.xyz_market_items.length > 0 || that.xyz_enchant_items.length > 0) that.xyz_get_prices(that);
     that.xyz_show_gold_heat(that);
+    that.xyz_am_i_minprice(that);
 }
+
 
 Stonehub_updateUI_xyz.prototype.xyz_get_inventory_HTML = function(that) {
     that.xyz_inventory_HTML = "";
@@ -104,6 +154,21 @@ Stonehub_updateUI_xyz.prototype.xyz_get_market_HTML = function(that) {
         if(current_item_node){
             let item_name = current_item_node.attributes['alt'].nodeValue;
             that.xyz_market_items.push([item_name,]);
+        }
+    }
+}
+
+Stonehub_updateUI_xyz.prototype.xyz_get_enchant_HTML = function(that) {
+    // Add prices into scrollcrafting container
+    that.xyz_enchant_HTML = "";
+    that.xyz_enchant_items = [];
+    var enchant_tab = document.getElementsByClassName("enchanting-tabs")[0];
+    if (enchant_tab) {
+        if (enchant_tab.children[0].className == "enchanting-tab-selected") {
+            var scrolls = that.xyz_enchant_HTML = document.getElementsByClassName("scrollcrafting-main")[0].children[1];
+            for(var i = 0; i < scrolls.childElementCount; i++) {
+                that.xyz_enchant_items.push([scrolls.children[i].children[0].attributes['alt'].nodeValue,]);
+            }
         }
     }
 }
@@ -166,6 +231,30 @@ Stonehub_updateUI_xyz.prototype.xyz_update_market_HTML = function(that) {
     }
 }
 
+Stonehub_updateUI_xyz.prototype.xyz_update_enchant_HTML = function(that) {
+    // Create HTML div into the item node so we can display the price onto it
+    for (var i = 0; i < that.xyz_enchant_items.length; i++) {
+        let item_node = that.xyz_enchant_HTML.children[i];
+        if(item_node){
+            if(item_node.getElementsByClassName("price").length==0){
+                // If the div was not created yet, create it with adapted CSS
+                var newNode = document.createElement("div");
+                newNode.className = "price";
+                newNode.style.position = "absolute";
+                newNode.style.top = "50px";
+                newNode.style.left = "40px";
+                newNode.style.color = "#54FF9F";
+                newNode.style.fontSize = "14px";
+                item_node.insertBefore(newNode, item_node.lastElementNode);
+            }
+            // Populate the div with xyz API current price
+            let value = that.xyz_enchant_items[i][1];
+            item_node.getElementsByClassName("price").item(0).textContent = value ? that.int_to_commas(value) : 'no data...';
+        }
+    }
+}
+
+
 Stonehub_updateUI_xyz.prototype.xyz_get_prices = function(that) {
     // xhr request to scrape idlescape.xyz prices in JSON format
     // xhr request is asynchronous as for now (synchronous = true not working, neither callback apparently), and so HTML edits must happen inside the onload event for now
@@ -173,27 +262,39 @@ Stonehub_updateUI_xyz.prototype.xyz_get_prices = function(that) {
         url: "https://api.idlescape.xyz/prices",
         method: "GET",
         onload: response => {
-            var xyz_data = JSON.parse(response.responseText)['items'];
+            that.xyz_data = JSON.parse(response.responseText)['items'];
             // Get price for each item in inventory
             for (var i = 0; i < that.xyz_inventory_items.length; i++) {
-                for (var j = 0; j < xyz_data.length; j++) {
-                    if (xyz_data[j]['name'] == that.xyz_inventory_items[i][0]) {
-                        that.xyz_inventory_items[i][1]=xyz_data[j]['price'];
+                for (var j = 0; j < that.xyz_data.length; j++) {
+                    if (that.xyz_data[j]['name'] == that.xyz_inventory_items[i][0]) {
+                        that.xyz_inventory_items[i][1]=that.xyz_data[j]['price'];
                         break;
                     }
                 }
             }
             if(that.xyz_inventory_items.length > 0) that.xyz_update_inventory_HTML(that);
-            // Get price for each item in inventory
+
+            // Get price for each item in market
             for (i = 0; i < that.xyz_market_items.length; i++) {
-                for (j = 0; j < xyz_data.length; j++) {
-                    if (xyz_data[j]['name'] == that.xyz_market_items[i][0]) {
-                        that.xyz_market_items[i][1]=xyz_data[j]['price'];
+                for (j = 0; j < that.xyz_data.length; j++) {
+                    if (that.xyz_data[j]['name'] == that.xyz_market_items[i][0]) {
+                        that.xyz_market_items[i][1]=that.xyz_data[j]['price'];
                         break;
                     }
                 }
             }
             if(that.xyz_market_items.length > 0) that.xyz_update_market_HTML(that);
+
+            // Get price for each scroll in enchant
+            for (i = 0; i < that.xyz_enchant_items.length; i++) {
+                for (j = 0; j < xyz_data.length; j++) {
+                    if (xyz_data[j]['name'] == that.xyz_enchant_items[i][0]) {
+                        that.xyz_enchant_items[i][1]=xyz_data[j]['price'];
+                        break;
+                    }
+                }
+            }
+            if(that.xyz_enchant_items.length > 0) that.xyz_update_enchant_HTML(that);
         }
     });
 }
@@ -203,6 +304,31 @@ Stonehub_updateUI_xyz.prototype.xyz_show_gold_heat = function(that) {
     if (! document.getElementsByClassName("inventory-panel")[0]) {return;} // Inventory isn't being displayed => Leave
     document.getElementById('gold').textContent = document.getElementById('gold-tooltip').children[1].textContent
     document.getElementById('heat').textContent = document.getElementById('heat-tooltip').children[1].textContent
+}
+
+Stonehub_updateUI_xyz.prototype.xyz_am_i_minprice = function(that) {
+    const table = document.getElementsByClassName('crafting-table marketplace-table marketplace-my-auctions-table')[0];
+    if(table){
+        const items = table.getElementsByTagName('tbody')[0].children;
+        [...items].forEach(tr => {
+            const infos = {
+                'name':tr.childNodes[0].childNodes[0].childNodes[1].childNodes[0].innerHTML,
+                'price': that.activated_extensions.stonehub ? (tr.childNodes[tr.childNodes.length - 2].innerHTML).replace(/\s+/g, '') : (tr.childNodes[tr.childNodes.length - 1].innerHTML).replace(/\s+/g, '')
+            };
+
+            that.xyz_data.forEach(d => {
+                if(infos.name == d.name) {
+                    // const color = infos.price == d.price ? 'green' : 'red';
+                    //console.log(infos.name + ':' + infos.price + ' ' + d.price + ' ' +color);
+                    if(infos.price == d.price)
+                        tr.style.backgroundColor = 'blue';
+                    else
+                        tr.style.backgroundColor = 'red';
+               }
+            });
+
+        });
+    }
 }
 
 
