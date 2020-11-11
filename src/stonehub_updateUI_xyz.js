@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         stonehub_updateUI_xyz
 // @namespace    http://tampermonkey.net/
-// @version      1.1.1
+// @version      1.1.2
 // @description  retrieve prices from idlescape.xyz and inject it in idlescape inventory
 // @author       godi, weld, gamergeo, flo
 // @match        https://idlescape.com/game*
