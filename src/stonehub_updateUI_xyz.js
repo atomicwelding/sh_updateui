@@ -12,6 +12,9 @@
 class Stonehub_updateUI_xyz {
 
     constructor() {
+        this.extension_id = 'updateui';
+        this.status_refresh_time = 3000;
+
         this.xyz_data;
         this.xyz_inventory_HTML = "";
         this.xyz_market_HTML = "";
@@ -23,7 +26,11 @@ class Stonehub_updateUI_xyz {
         this.go_interval_retry = 2000;
         this.go_nb_geode = 0;
 
-        this.stonehub_state = true;
+        this.status_div;
+        this.activated_extensions = {
+            'stonehub':false,
+            'updateui':false
+        };
     }
 
     error_handler(that, e) {
@@ -34,6 +41,8 @@ class Stonehub_updateUI_xyz {
 
     start() {
         let that = this;
+        that.set_status(that);
+        that.retrieve_status_div(that);
         // launch xyz prices (xyz) daemon
         setInterval(() => {
             try {
@@ -47,6 +56,39 @@ class Stonehub_updateUI_xyz {
             } catch(e) {that.error_handler(that, e);}
         }, that.go_interval_retry);
     }
+}
+
+Stonehub_updateUI_xyz.prototype.create_status_div = function(that) {
+    /**
+     * <div id='stonehub_status'></div>
+     */
+    const sdiv = document.createElement('div');
+    sdiv.id = 'stonehub_status';
+    sdiv.style.display = 'none';
+    document.body.appendChild(sdiv);
+    return document.getElementById('stonehub_status');
+}
+
+Stonehub_updateUI_xyz.prototype.set_status = function(that) {
+    if(!that.activated_extensions.stonehub){
+        that.status_div = that.status_div ?? that.create_status_div(that);
+        let ext_status = document.createElement('div');
+        ext_status.id = that.extension_id;
+        that.status_div.appendChild(ext_status);
+    }
+}
+
+Stonehub_updateUI_xyz.prototype.retrieve_status_div = function(that) {
+    /**
+     * Checks inside <div id='stonehub_status'></div> which script is activated
+     * and update its state inside this.activated_extensions
+     */
+    setInterval(() => {    
+        that.status_div = that.status_div ?? that.create_status_div(that);
+        [...that.status_div.children].forEach(ext =>{
+            that.activated_extensions[ext.id] = true;
+        });
+    }, that.status_refresh_time);
 }
 
 Stonehub_updateUI_xyz.prototype.int_to_commas = function(x) {
@@ -216,7 +258,7 @@ Stonehub_updateUI_xyz.prototype.xyz_am_i_minprice = function(that) {
         [...items].forEach(tr => {
             const infos = {
                 'name':tr.childNodes[0].childNodes[0].childNodes[1].childNodes[0].innerHTML,
-                'price': that.stonehub_state ? (tr.childNodes[tr.childNodes.length - 2].innerHTML).replace(/\s+/g, '') : (tr.childNodes[tr.childNodes.length - 1].innerHTML).replace(/\s+/g, '')
+                'price': that.activated_extensions.stonehub ? (tr.childNodes[tr.childNodes.length - 2].innerHTML).replace(/\s+/g, '') : (tr.childNodes[tr.childNodes.length - 1].innerHTML).replace(/\s+/g, '')
             };
 
             that.xyz_data.forEach(d => {
@@ -224,7 +266,7 @@ Stonehub_updateUI_xyz.prototype.xyz_am_i_minprice = function(that) {
                     // const color = infos.price == d.price ? 'green' : 'red';
                     //console.log(infos.name + ':' + infos.price + ' ' + d.price + ' ' +color);
                     if(infos.price == d.price)
-                        tr.style.backgroundColor = 'green';
+                        tr.style.backgroundColor = 'blue';
                     else
                         tr.style.backgroundColor = 'red';
                }
