@@ -18,10 +18,12 @@ class Stonehub_updateUI_xyz {
         this.xyz_inventory_items = [];
         this.xyz_market_items = [];
         this.xyz_active_market_tag = "";
-        this.xyz_refresh_rate = 2000;
+        this.xyz_refresh_rate = 500;
         this.timer_hook = 0;
         this.go_interval_retry = 2000;
         this.go_nb_geode = 0;
+
+        this.stonehub_state = true;
     }
 
     error_handler(that, e) {
@@ -214,7 +216,7 @@ Stonehub_updateUI_xyz.prototype.xyz_am_i_minprice = function(that) {
         [...items].forEach(tr => {
             const infos = {
                 'name':tr.childNodes[0].childNodes[0].childNodes[1].childNodes[0].innerHTML,
-                'price':(tr.childNodes[tr.childNodes.length - 1].innerHTML).replace(/\s+/g, '')
+                'price': that.stonehub_state ? (tr.childNodes[tr.childNodes.length - 2].innerHTML).replace(/\s+/g, '') : (tr.childNodes[tr.childNodes.length - 1].innerHTML).replace(/\s+/g, '')
             };
 
             that.xyz_data.forEach(d => {
@@ -227,7 +229,6 @@ Stonehub_updateUI_xyz.prototype.xyz_am_i_minprice = function(that) {
                         tr.style.backgroundColor = 'red';
                }
             });
-
 
         });
     }
