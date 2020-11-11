@@ -43,8 +43,17 @@ class Stonehub_updateUI_xyz {
 
     start() {
         let that = this;
-        that.set_status(that);
-        that.retrieve_status_div(that);
+        
+        // wait for loading to complete, then check which ext is activated
+        let page_ready = setInterval(() =>{
+            if(document.readyState == 'complete'){
+                clearInterval(page_ready);
+                that.set_status(that);
+                that.retrieve_status_div(that)
+            }
+            ;
+        }, 200);
+
         // launch xyz prices (xyz) daemon
         setInterval(() => {
             try {
