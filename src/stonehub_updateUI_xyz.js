@@ -43,7 +43,7 @@ class Stonehub_updateUI_xyz {
 
     start() {
         let that = this;
-        
+
         // wait for loading to complete, then check which ext is activated
         let page_ready = setInterval(() =>{
             if(document.readyState == 'complete'){
@@ -94,7 +94,7 @@ Stonehub_updateUI_xyz.prototype.retrieve_status_div = function(that) {
      * Checks inside <div id='stonehub_status'></div> which script is activated
      * and update its state inside this.activated_extensions
      */
-    setInterval(() => {    
+    setInterval(() => {
         that.status_div = that.status_div ?? that.create_status_div(that);
         [...that.status_div.children].forEach(ext =>{
             that.activated_extensions[ext.id] = true;
@@ -296,9 +296,9 @@ Stonehub_updateUI_xyz.prototype.xyz_get_prices = function(that) {
 
             // Get price for each scroll in enchant
             for (i = 0; i < that.xyz_enchant_items.length; i++) {
-                for (j = 0; j < xyz_data.length; j++) {
-                    if (xyz_data[j]['name'] == that.xyz_enchant_items[i][0]) {
-                        that.xyz_enchant_items[i][1]=xyz_data[j]['price'];
+                for (j = 0; j < that.xyz_data.length; j++) {
+                    if (that.xyz_data[j]['name'] == that.xyz_enchant_items[i][0]) {
+                        that.xyz_enchant_items[i][1]=that.xyz_data[j]['price'];
                         break;
                     }
                 }
