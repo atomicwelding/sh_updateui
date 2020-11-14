@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         stonehub_updateUI_xyz
 // @namespace    http://tampermonkey.net/
-// @version      1.1.2
+// @version      1.1.3
 // @description  retrieve prices from idlescape.xyz and inject it in idlescape inventory
 // @author       godi, weld, gamergeo, flo
 // @match        https://idlescape.com/game*
@@ -327,8 +327,6 @@ Stonehub_updateUI_xyz.prototype.xyz_am_i_minprice = function(that) {
 
             that.xyz_data.forEach(d => {
                 if(infos.name == d.name) {
-                    const color = infos.price == d.price ? 'green' : 'red';
-                    console.log(infos.name + ':' + infos.price + ' ' + d.price + ' ' +color);
                     if(infos.price == d.price)
                         tr.style.backgroundColor = '#3254fc';
                     else
