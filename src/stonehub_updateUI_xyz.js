@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         stonehub_updateUI_xyz
 // @namespace    http://tampermonkey.net/
-// @version      1.1.3
+// @version      1.2.0
 // @description  retrieve prices from idlescape.xyz and inject it in idlescape inventory
 // @author       godi, weld, gamergeo, flo
 // @match        https://idlescape.com/game*
@@ -43,7 +43,7 @@ class Stonehub_updateUI_xyz {
 
     start() {
         let that = this;
-        
+
         // wait for loading to complete, then check which ext is activated
         let page_ready = setInterval(() =>{
             if(document.readyState == 'complete'){
@@ -94,7 +94,7 @@ Stonehub_updateUI_xyz.prototype.retrieve_status_div = function(that) {
      * Checks inside <div id='stonehub_status'></div> which script is activated
      * and update its state inside this.activated_extensions
      */
-    setInterval(() => {    
+    setInterval(() => {
         that.status_div = that.status_div ?? that.create_status_div(that);
         [...that.status_div.children].forEach(ext =>{
             that.activated_extensions[ext.id] = true;
@@ -146,16 +146,10 @@ Stonehub_updateUI_xyz.prototype.xyz_get_market_HTML = function(that) {
     if (! document.getElementsByClassName("marketplace-content")[0]) {return;} // Market isn't open => Leave
     if (document.getElementsByClassName("marketplace-sell-items all-items")[0]) {
         // market is open on "Sell" tab
-        that.xyz_active_market_tag = "marketplace-sell-items all-items";
+        return;
     } else {
         // market is open on "Buy" tab
         that.xyz_active_market_tag = "marketplace-content";
-    }
-    if (that.xyz_active_market_tag=="marketplace-sell-items all-items") {
-        // Since we're unable to read item names in sell tab, let's just copy the inventory list since it must be the same (tricky but should work), then leave
-        that.xyz_market_HTML = document.getElementsByClassName(that.xyz_active_market_tag)[0];
-        that.xyz_market_items = that.xyz_inventory_items;
-        return;
     }
     that.xyz_market_HTML = document.getElementsByClassName(that.xyz_active_market_tag)[0].children[0];
     for (var i = 0; i < that.xyz_market_HTML.childElementCount; i++) {
@@ -296,9 +290,9 @@ Stonehub_updateUI_xyz.prototype.xyz_get_prices = function(that) {
 
             // Get price for each scroll in enchant
             for (i = 0; i < that.xyz_enchant_items.length; i++) {
-                for (j = 0; j < xyz_data.length; j++) {
-                    if (xyz_data[j]['name'] == that.xyz_enchant_items[i][0]) {
-                        that.xyz_enchant_items[i][1]=xyz_data[j]['price'];
+                for (j = 0; j < that.xyz_data.length; j++) {
+                    if (that.xyz_data[j]['name'] == that.xyz_enchant_items[i][0]) {
+                        that.xyz_enchant_items[i][1]=that.xyz_data[j]['price'];
                         break;
                     }
                 }
