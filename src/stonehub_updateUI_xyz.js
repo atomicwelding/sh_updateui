@@ -146,16 +146,10 @@ Stonehub_updateUI_xyz.prototype.xyz_get_market_HTML = function(that) {
     if (! document.getElementsByClassName("marketplace-content")[0]) {return;} // Market isn't open => Leave
     if (document.getElementsByClassName("marketplace-sell-items all-items")[0]) {
         // market is open on "Sell" tab
-        that.xyz_active_market_tag = "marketplace-sell-items all-items";
+        return;
     } else {
         // market is open on "Buy" tab
         that.xyz_active_market_tag = "marketplace-content";
-    }
-    if (that.xyz_active_market_tag=="marketplace-sell-items all-items") {
-        // Since we're unable to read item names in sell tab, let's just copy the inventory list since it must be the same (tricky but should work), then leave
-        that.xyz_market_HTML = document.getElementsByClassName(that.xyz_active_market_tag)[0];
-        that.xyz_market_items = that.xyz_inventory_items;
-        return;
     }
     that.xyz_market_HTML = document.getElementsByClassName(that.xyz_active_market_tag)[0].children[0];
     for (var i = 0; i < that.xyz_market_HTML.childElementCount; i++) {
@@ -328,7 +322,6 @@ Stonehub_updateUI_xyz.prototype.xyz_am_i_minprice = function(that) {
             that.xyz_data.forEach(d => {
                 if(infos.name == d.name) {
                     const color = infos.price == d.price ? 'green' : 'red';
-                    console.log(infos.name + ':' + infos.price + ' ' + d.price + ' ' +color);
                     if(infos.price == d.price)
                         tr.style.backgroundColor = '#3254fc';
                     else
